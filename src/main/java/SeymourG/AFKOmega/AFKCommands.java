@@ -3,8 +3,6 @@ package SeymourG.AFKOmega;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.List;
-import java.util.Objects;
-import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.Entity;
@@ -21,20 +19,17 @@ public class AFKCommands {
 
     private static int HandleAFKCommand(CommandSource commandSource) throws CommandSyntaxException {
         Entity entity = commandSource.assertIsEntity();
-        List<ServerPlayerEntity> allPlayersList = commandSource.getServer().getPlayerList().getPlayers();
-        ServerPlayerEntity endPlayer = null;
-
-        for(ServerPlayerEntity tempPlayer : allPlayersList) {
-            if (tempPlayer.getUniqueID().equals(entity.getUniqueID())) {
-                endPlayer = tempPlayer;
-            }
-        }
-        ToggleAFK(endPlayer);
+        ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(entity);
+        ToggleAFK(player);
         return 1;
     }
 
     public static void ToggleAFK(ServerPlayerEntity player) {
-        List<ServerPlayerEntity> allPlayersList = Objects.requireNonNull(Minecraft.getInstance().getIntegratedServer()).getPlayerList().getPlayers();
+        // Immediately exiting method if the input delay cooldown is still in effect for this player
+        if (AFKOmega.checkAFKDelay(player.getUniqueID())) {
+            return;
+        }
+        List<ServerPlayerEntity> allPlayersList = AFKOmega.getAllPlayers();
         String username = player.getDisplayName().toString();
 
         for(ServerPlayerEntity tempPlayer : allPlayersList) {
