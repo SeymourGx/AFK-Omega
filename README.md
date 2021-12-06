@@ -19,4 +19,4 @@ TO-DO:
   - File-based with in-game commands to alter it
 
 Known Bugs:
-- First trigger of AFK double-taps, thinking the player moved.
+- None

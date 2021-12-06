@@ -175,6 +175,10 @@ public class AFKOmega
         List<ServerPlayerEntity> allPlayersList = getAllPlayers();
         String username = player.getDisplayName().toString();
 
+        // Need to update the player's current location,
+        // else the method checking for movement will bring them immediately out of AFK
+        updatePlayerLocation(player.getUniqueID(), getCurrentPlayerLocation(player.getEntity()));
+
         // Looping through all players and notifying them while updating AFK status of player
         for(ServerPlayerEntity tempPlayer : allPlayersList) {
             if (tempPlayer == player) {

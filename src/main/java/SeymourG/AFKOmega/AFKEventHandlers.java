@@ -75,7 +75,7 @@ public class AFKEventHandlers {
             List<Double> lastLoc = AFKOmega.getLastPlayerLocation(uuid);
             if (!currentLoc.equals(lastLoc)) {
                 // Player has moved while AFK, toggling AFK status
-                AFKOmega.LOG("Player has moved while AFK. Toggling AFK status.", 0);
+                AFKOmega.LOG(String.format("Player has moved from %s to %s while AFK. Toggling AFK status.", lastLoc, currentLoc), 0);
                 ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(entity);
                 AFKOmega.ToggleAFK(player);
             }
