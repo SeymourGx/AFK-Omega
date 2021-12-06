@@ -1,5 +1,5 @@
 # AFK-Omega
-AFK Omega - Minecraft Mod
+AFK Omega: a Minecraft Mod by SeymourG
 
 Features:
 - AFK Support!
