@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -20,12 +21,43 @@ import java.util.*;
 @Mod("afkomega")
 public class AFKOmega
 {
-    // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String MODID = "afkomega";
-    public static final int AFKDELAY = 120; // AFK Delay in SECONDS
+    public static final int AFKINPUTCOOLDOWN = 2; // AFK Delay in SECONDS
     public static KeyBinding modKeyBinding;
+    private static List<UUID> AFKPlayers;
     private static Map<UUID, Date> lastPlayerInputs;
+    private static Map<UUID, List<Double>> lastPlayerLocations;
+    private static Map<UUID, Integer> AFKDelays;
+
+    public static void updatePlayerLocation(UUID uuid, List<Double> loc) {
+        lastPlayerLocations.put(uuid, loc);
+    }
+
+    public static List<Double> getLastPlayerLocation(UUID uuid) {
+        return lastPlayerLocations.get(uuid);
+    }
+
+    public static List<Double> getCurrentPlayerLocation(Entity entity) {
+        ServerPlayerEntity player = getServerPlayerEntity(entity);
+        if (player == null) {
+            return getLastPlayerLocation(entity.getUniqueID());
+        }
+        List<Double> loc = new ArrayList<>();
+        Double locX = player.lastTickPosX;
+        Double locY = player.lastTickPosY;
+        Double locZ = player.lastTickPosZ;
+        if (locX != null && locY != null && locZ != null) {
+            loc.add(locX);
+            loc.add(locY);
+            loc.add(locZ);
+        }
+        else {
+            loc = getLastPlayerLocation(entity.getUniqueID());
+        }
+
+        return loc;
+    }
 
     public static void LOG(String message, int severity) {
         // Logs message. For use by other classes.
@@ -59,8 +91,6 @@ public class AFKOmega
         lastPlayerInputs.put(uuid, lastInputDate);
     }
 
-    private static Map<UUID, Integer> AFKDelays;
-
     public static Map<UUID, Integer> getAFKDelays() {
         return AFKDelays;
     }
@@ -72,8 +102,6 @@ public class AFKOmega
     public static boolean checkAFKDelay(UUID uuid) {
         return AFKDelays.containsKey(uuid);
     }
-
-    private static List<UUID> AFKPlayers;
 
     public static List<UUID> getAFKPlayers() {
         return AFKPlayers;
@@ -92,9 +120,15 @@ public class AFKOmega
     public static void removeAFKPlayer(UUID PlayerID) {
         AFKPlayers.remove(PlayerID);
     }
-    
+
     public static List<ServerPlayerEntity> getAllPlayers() {
-        return Minecraft.getInstance().getIntegratedServer().getPlayerList().getPlayers();
+        IntegratedServer server = Minecraft.getInstance().getIntegratedServer();
+        if (server != null) {
+            return server.getPlayerList().getPlayers();
+        }
+        else {
+            return new ArrayList<>();
+        }
     }
     
     public static ServerPlayerEntity getServerPlayerEntity(Entity entity) {
@@ -132,7 +166,7 @@ public class AFKOmega
             sendMessageToPlayer(player, "Please don't spam the AFK command/keybind.");
             return;
         }
-        AFKDelays.put(player.getUniqueID(), AFKDELAY);
+        AFKDelays.put(player.getUniqueID(), AFKINPUTCOOLDOWN);
         ToggleAFK(player);
     }
 
@@ -170,6 +204,7 @@ public class AFKOmega
         AFKPlayers = new ArrayList<>();
         AFKDelays = new HashMap<>();
         lastPlayerInputs = new HashMap<>();
+        lastPlayerLocations = new HashMap<>();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
