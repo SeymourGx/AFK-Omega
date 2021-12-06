@@ -30,33 +30,29 @@ public class AFKOmega
     private static Map<UUID, List<Double>> lastPlayerLocations;
     private static Map<UUID, Integer> AFKDelays;
 
-    protected static void updatePlayerLocation(UUID uuid, List<Double> loc) {
-        lastPlayerLocations.put(uuid, loc);
+    public AFKOmega() {
+        // Register these methods for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+
+        // Register ourselves for server and other game events we are interested in
+        MinecraftForge.EVENT_BUS.register(AFKEventSubscribers.class);
     }
 
-    public static List<Double> getLastPlayerLocation(UUID uuid) {
-        return lastPlayerLocations.get(uuid);
+    private void setup(final FMLCommonSetupEvent event)
+    {
+        // Initialization code
+        LOGGER.info("AFK Omega has being its preinit setup.");
+        AFKPlayers = new ArrayList<>();
+        AFKDelays = new HashMap<>();
+        lastPlayerInputs = new HashMap<>();
+        lastPlayerLocations = new HashMap<>();
     }
 
-    public static List<Double> getCurrentPlayerLocation(Entity entity) {
-        ServerPlayerEntity player = getServerPlayerEntity(entity);
-        if (player == null) {
-            return getLastPlayerLocation(entity.getUniqueID());
-        }
-        List<Double> loc = new ArrayList<>();
-        Double locX = player.lastTickPosX;
-        Double locY = player.lastTickPosY;
-        Double locZ = player.lastTickPosZ;
-        if (locX != null && locY != null && locZ != null) {
-            loc.add(locX);
-            loc.add(locY);
-            loc.add(locZ);
-        }
-        else {
-            loc = getLastPlayerLocation(entity.getUniqueID());
-        }
-
-        return loc;
+    private void doClientStuff(final FMLClientSetupEvent event) {
+        // Handle Key Binding(s)
+        modKeyBinding = new KeyBinding("Toggle AFK Status", 93, "AFK Omega");
+        ClientRegistry.registerKeyBinding(modKeyBinding);
     }
 
     protected static void LOG(String message, int severity) {
@@ -99,65 +95,10 @@ public class AFKOmega
         AFKDelays.remove(uuid);
     }
 
-    public static boolean getAFKDelay(UUID uuid) {
-        return AFKDelays.containsKey(uuid);
-    }
-
-    public static List<UUID> getAFKPlayers() {
-        return AFKPlayers;
-    }
-
     public static boolean isAFK(UUID uuid) {
         // Checks to see if the given UUID is currently AFK
         // This was added to avoid needing to pull the entire list of AFK Players
         return AFKPlayers.contains(uuid);
-    }
-
-    protected static void addAFKPlayer(UUID PlayerID) {
-        AFKPlayers.add(PlayerID);
-    }
-
-    protected static void removeAFKPlayer(UUID PlayerID) {
-        AFKPlayers.remove(PlayerID);
-    }
-
-    public static List<ServerPlayerEntity> getAllPlayers() {
-        IntegratedServer server = Minecraft.getInstance().getIntegratedServer();
-        if (server != null) {
-            return server.getPlayerList().getPlayers();
-        }
-        else {
-            return new ArrayList<>();
-        }
-    }
-    
-    public static ServerPlayerEntity getServerPlayerEntity(Entity entity) {
-        List<ServerPlayerEntity> allPlayersList = getAllPlayers();
-        ServerPlayerEntity player = null;
-
-        for(ServerPlayerEntity tempPlayer : allPlayersList) {
-            if (tempPlayer.getUniqueID().equals(entity.getUniqueID())) {
-                player = tempPlayer;
-                break;
-            }
-        }
-        
-        return player;
-    }
-
-    protected static void sendMessageToPlayer (ServerPlayerEntity player, String message) {
-        // Sends a message to the player from themselves
-        StringTextComponent textComponent = new StringTextComponent(message);
-        player.sendMessage(textComponent, player.getUniqueID());
-    }
-
-    public AFKOmega() {
-        // Register these methods for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(AFKEventSubscribers.class);
     }
 
     protected static void manualAFK(ServerPlayerEntity player) {
@@ -168,6 +109,16 @@ public class AFKOmega
         }
         AFKDelays.put(player.getUniqueID(), AFKINPUTCOOLDOWN);
         ToggleAFK(player);
+    }
+
+    public static boolean getAFKDelay(UUID uuid) {
+        return AFKDelays.containsKey(uuid);
+    }
+
+    protected static void sendMessageToPlayer (ServerPlayerEntity player, String message) {
+        // Sends a message to the player from themselves
+        StringTextComponent textComponent = new StringTextComponent(message);
+        player.sendMessage(textComponent, player.getUniqueID());
     }
 
     protected static void ToggleAFK(ServerPlayerEntity player) {
@@ -201,19 +152,68 @@ public class AFKOmega
         }
     }
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
-        // Initialization code
-        LOGGER.info("AFK Omega has being its preinit setup.");
-        AFKPlayers = new ArrayList<>();
-        AFKDelays = new HashMap<>();
-        lastPlayerInputs = new HashMap<>();
-        lastPlayerLocations = new HashMap<>();
+    public static List<ServerPlayerEntity> getAllPlayers() {
+        IntegratedServer server = Minecraft.getInstance().getIntegratedServer();
+        if (server != null) {
+            return server.getPlayerList().getPlayers();
+        }
+        else {
+            return new ArrayList<>();
+        }
+    }
+    
+    protected static void updatePlayerLocation(UUID uuid, List<Double> loc) {
+        lastPlayerLocations.put(uuid, loc);
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        // Handle Key Binding(s)
-        modKeyBinding = new KeyBinding("Toggle AFK Status", 93, "AFK Omega");
-        ClientRegistry.registerKeyBinding(modKeyBinding);
+    public static List<Double> getCurrentPlayerLocation(Entity entity) {
+        ServerPlayerEntity player = getServerPlayerEntity(entity);
+        if (player == null) {
+            return getLastPlayerLocation(entity.getUniqueID());
+        }
+        List<Double> loc = new ArrayList<>();
+        Double locX = player.lastTickPosX;
+        Double locY = player.lastTickPosY;
+        Double locZ = player.lastTickPosZ;
+        if (locX != null && locY != null && locZ != null) {
+            loc.add(locX);
+            loc.add(locY);
+            loc.add(locZ);
+        }
+        else {
+            loc = getLastPlayerLocation(entity.getUniqueID());
+        }
+
+        return loc;
+    }
+
+    public static List<UUID> getAFKPlayers() {
+        return AFKPlayers;
+    }
+
+    protected static void removeAFKPlayer(UUID PlayerID) {
+        AFKPlayers.remove(PlayerID);
+    }
+
+    protected static void addAFKPlayer(UUID PlayerID) {
+        AFKPlayers.add(PlayerID);
+    }
+
+    public static ServerPlayerEntity getServerPlayerEntity(Entity entity) {
+        List<ServerPlayerEntity> allPlayersList = getAllPlayers();
+        ServerPlayerEntity player = null;
+
+        for(ServerPlayerEntity tempPlayer : allPlayersList) {
+            if (tempPlayer.getUniqueID().equals(entity.getUniqueID())) {
+                player = tempPlayer;
+                break;
+            }
+        }
+
+        return player;
+    }
+
+    public static List<Double> getLastPlayerLocation(UUID uuid) {
+        return lastPlayerLocations.get(uuid);
     }
 }
