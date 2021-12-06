@@ -13,6 +13,7 @@ Features:
     - Ignores pause-menu or looking around
 
 TO-DO:
+- Make messages to players color-coded/prettier
 - Add AFK tag to Player List (Tab menu)
 - Possibly add overlay/aura/effects around player when AFK
 - Add configuration options for server hosts

@@ -22,6 +22,8 @@ public class AFKEventSubscribers {
     private static final int TICKS_PER_SECOND = 20;
     private static int TICK_COUNTER = 0;
 
+    // COMMON EVENTS
+
     @SubscribeEvent
     public static void handleKeybindInput(TickEvent.ClientTickEvent event) {
         // Runs every time the Toggle AFK keybind is pressed
@@ -30,18 +32,6 @@ public class AFKEventSubscribers {
             ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(entity);
             AFKOmega.manualAFK(player);
         }
-    }
-
-    @SubscribeEvent
-    public static void onServerStarting(FMLServerStartingEvent event) {
-        // Only ever runs once, on server startup
-        AFKOmega.LOG("AFK Omega has begun.", 0);
-    }
-
-    @SubscribeEvent
-    public static void onServerStopping(FMLServerStoppingEvent event) {
-        // Only ever runs once, on server shutdown
-        AFKOmega.LOG("AFK Omega is no more. Goodbye!", 0);
     }
 
     @SubscribeEvent
@@ -80,14 +70,30 @@ public class AFKEventSubscribers {
     public static void onPlayerInteractEvent(PlayerInteractEvent event) {
         // All event handlers that NEED to fire on EVERY player interaction in-game
         ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(event.getEntity());
-        AFKEventHandlers.checkIfPlayerMovedWhileAFK(player.getEntity());
+        if (AFKOmega.isAFK(player.getUniqueID())) {
+            AFKOmega.ToggleAFK(player);
+        }
     }
+
+    // RARE EVENTS
 
     @SubscribeEvent
     public static void onRegisterCommandEvent(RegisterCommandsEvent event) {
         // Only ever runs once, on modload
         CommandDispatcher<CommandSource> commandDispatcher = event.getDispatcher();
         AFKCommands.register(commandDispatcher);
+    }
+
+    @SubscribeEvent
+    public static void onServerStarting(FMLServerStartingEvent event) {
+        // Only ever runs once, on server startup
+        AFKOmega.LOG("AFK Omega has begun.", 0);
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(FMLServerStoppingEvent event) {
+        // Only ever runs once, on server shutdown
+        AFKOmega.LOG("AFK Omega is no more. Goodbye!", 0);
     }
 
     @SubscribeEvent

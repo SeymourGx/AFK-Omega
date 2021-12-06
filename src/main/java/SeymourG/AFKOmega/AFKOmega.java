@@ -23,14 +23,14 @@ public class AFKOmega
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String MODID = "afkomega";
-    public static final int AFKINPUTCOOLDOWN = 2; // AFK Delay in SECONDS
-    public static KeyBinding modKeyBinding;
+    private static final int AFKINPUTCOOLDOWN = 2; // AFK Delay in SECONDS
+    protected static KeyBinding modKeyBinding;
     private static List<UUID> AFKPlayers;
     private static Map<UUID, Date> lastPlayerInputs;
     private static Map<UUID, List<Double>> lastPlayerLocations;
     private static Map<UUID, Integer> AFKDelays;
 
-    public static void updatePlayerLocation(UUID uuid, List<Double> loc) {
+    protected static void updatePlayerLocation(UUID uuid, List<Double> loc) {
         lastPlayerLocations.put(uuid, loc);
     }
 
@@ -59,7 +59,7 @@ public class AFKOmega
         return loc;
     }
 
-    public static void LOG(String message, int severity) {
+    protected static void LOG(String message, int severity) {
         // Logs message. For use by other classes.
         if (severity == 1) {
             // ERROR
@@ -75,7 +75,7 @@ public class AFKOmega
         }
     }
 
-    public static void purgePlayer(UUID uuid) {
+    protected static void purgePlayer(UUID uuid) {
         // Removes UUID from all maps/lists, currently only on logout
         lastPlayerInputs.remove(uuid);
         AFKPlayers.remove(uuid);
@@ -86,7 +86,7 @@ public class AFKOmega
         return lastPlayerInputs.get(uuid);
     }
 
-    public static void updatePlayerInput(UUID uuid, Date lastInputDate) {
+    protected static void updatePlayerInput(UUID uuid, Date lastInputDate) {
         // Will replace the record if one exists, otherwise add new
         lastPlayerInputs.put(uuid, lastInputDate);
     }
@@ -95,11 +95,11 @@ public class AFKOmega
         return AFKDelays;
     }
 
-    public static void removeAFKDelay(UUID uuid) {
+    protected static void removeAFKDelay(UUID uuid) {
         AFKDelays.remove(uuid);
     }
 
-    public static boolean checkAFKDelay(UUID uuid) {
+    public static boolean getAFKDelay(UUID uuid) {
         return AFKDelays.containsKey(uuid);
     }
 
@@ -113,11 +113,11 @@ public class AFKOmega
         return AFKPlayers.contains(uuid);
     }
 
-    public static void addAFKPlayer(UUID PlayerID) {
+    protected static void addAFKPlayer(UUID PlayerID) {
         AFKPlayers.add(PlayerID);
     }
 
-    public static void removeAFKPlayer(UUID PlayerID) {
+    protected static void removeAFKPlayer(UUID PlayerID) {
         AFKPlayers.remove(PlayerID);
     }
 
@@ -145,7 +145,7 @@ public class AFKOmega
         return player;
     }
 
-    public static void sendMessageToPlayer (ServerPlayerEntity player, String message) {
+    protected static void sendMessageToPlayer (ServerPlayerEntity player, String message) {
         // Sends a message to the player from themselves
         StringTextComponent textComponent = new StringTextComponent(message);
         player.sendMessage(textComponent, player.getUniqueID());
@@ -160,9 +160,9 @@ public class AFKOmega
         MinecraftForge.EVENT_BUS.register(AFKEventSubscribers.class);
     }
 
-    public static void manualAFK(ServerPlayerEntity player) {
+    protected static void manualAFK(ServerPlayerEntity player) {
         // To be used when a player intentionally toggles AFK
-        if (checkAFKDelay(player.getUniqueID())) {
+        if (getAFKDelay(player.getUniqueID())) {
             sendMessageToPlayer(player, "Please don't spam the AFK command/keybind.");
             return;
         }
@@ -170,7 +170,7 @@ public class AFKOmega
         ToggleAFK(player);
     }
 
-    public static void ToggleAFK(ServerPlayerEntity player) {
+    protected static void ToggleAFK(ServerPlayerEntity player) {
         // Master command for toggling AFK on a player, whether automatic or manual
         List<ServerPlayerEntity> allPlayersList = getAllPlayers();
         String username = player.getDisplayName().toString();

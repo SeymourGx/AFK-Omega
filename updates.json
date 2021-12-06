@@ -1,6 +1,7 @@
 {
   "homepage": "https://github.com/SeymourGx/AFK-Omega/",
   "1.16.5": {
+    "1.2.3": "Overall code cleanup and minor bug fix.",
     "1.2.2": "Fixed bug when player going AFK right after moving would bring the player right back out of AFK.",
     "1.2.1": "Bug fixes, finished automatic AFK support features.",
     "1.2.0": "Massive restructuring and automatic AFK support.",
@@ -8,7 +9,7 @@
     "1.0.0": "Initial."
   },
   "promos": {
-    "1.16.5-latest": "1.2.2",
-    "1.16.5-recommended": "1.2.2"
+    "1.16.5-latest": "1.2.3",
+    "1.16.5-recommended": "1.2.3"
   }
 }

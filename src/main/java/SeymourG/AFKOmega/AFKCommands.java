@@ -1,7 +1,6 @@
 package SeymourG.AFKOmega;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.Entity;
@@ -15,10 +14,15 @@ public class AFKCommands {
         );
     }
 
-    private static int HandleAFKCommand(CommandSource commandSource) throws CommandSyntaxException {
-        Entity entity = commandSource.assertIsEntity();
-        ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(entity);
-        AFKOmega.manualAFK(player);
-        return 1;
+    private static int HandleAFKCommand(CommandSource commandSource) {
+        try {
+            Entity entity = commandSource.getEntity();
+            ServerPlayerEntity player = AFKOmega.getServerPlayerEntity(entity);
+            AFKOmega.manualAFK(player);
+            return 1;
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 }

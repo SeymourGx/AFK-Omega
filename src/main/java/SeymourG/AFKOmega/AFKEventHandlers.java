@@ -10,7 +10,7 @@ import java.util.*;
 public class AFKEventHandlers {
     private static final int SECONDS_UNTIL_AFK = 5; // AFK time in seconds until triggering AFK status
 
-    static void afkCooldown() {
+    protected static void afkCooldown() {
         // RUNS PER SECOND
         Map<UUID, Integer> AFKDelays = AFKOmega.getAFKDelays();
 
@@ -25,7 +25,7 @@ public class AFKEventHandlers {
         }
     }
 
-    static void logInput() {
+    protected static void logInput() {
         // RUNS ON EVERY INPUT IN-GAME
         // Log the time of this input
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -37,7 +37,7 @@ public class AFKEventHandlers {
         AFKOmega.updatePlayerLocation(uuid, loc);
     }
 
-    static void automaticAFK() {
+    protected static void automaticAFK() {
         // RUNS PER SECOND
         // Loop through all players and check their last input time
         AFKOmega.LOG("Performing automatic AFK check...", 0);
@@ -65,7 +65,7 @@ public class AFKEventHandlers {
         }
     }
 
-    static void checkIfPlayerMovedWhileAFK(Entity entity) {
+    protected static void checkIfPlayerMovedWhileAFK(Entity entity) {
         // RUNS PER INPUT
         // Turns AFK off if the player provided input AND MOVED while AFK
         UUID uuid = entity.getUniqueID();
