@@ -10,7 +10,7 @@ Features:
 - Automatic AFK Support:
   - Go AFK if no client input is detected for 2+ minutes
   - Return from AFK if the player moves or interacts with anything
-    - Ignores pause-menu or looking around
+    - Ignores GUIs (pause menu, inventory, etc.) or looking around
 
 TO-DO:
 - Make messages to players color-coded/prettier
