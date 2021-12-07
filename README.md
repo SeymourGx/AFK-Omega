@@ -13,11 +13,12 @@ Features:
     - Ignores GUIs (pause menu, inventory, etc.) or looking around
 
 TO-DO:
-- Make messages to players color-coded/prettier
-- Add AFK tag to Player List (Tab menu)
-- Possibly add overlay/aura/effects around player when AFK
-- Add configuration options for server hosts
-  - File-based with in-game commands to alter it
+1) Make messages to players color-coded/prettier
+2) Release first stable .jar
+3) Add AFK tag to Player List (Tab menu)
+4) Possibly add overlay/aura/effects around player when AFK
+5) Add configuration options for server hosts 
+   1) File-based with in-game commands to alter it
 
 Known Bugs:
 - None
